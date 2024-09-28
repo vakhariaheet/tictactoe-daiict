@@ -70,29 +70,29 @@ export default function SignUpPage() {
                 </div>
                 <div>
                   <Label htmlFor="year">Year</Label>
-                  <Input type="text" id="year" className='w-full' placeholder="Enter your Year" />
+                  <Input type="text" id="year" className='w-full' placeholder="Enter your Year"value={year} onChange={(e) => setYear(e.target.value)} />
                 </div>
 
                 {/* Row 3: Course and University */}
                 <div>
                   <Label htmlFor="course">Course</Label>
-                  <Input type="text" id="course" className='w-full' placeholder="Enter your Course" />
+                  <Input type="text" id="course" className='w-full' placeholder="Enter your Course"value={course} onChange={(e) => (e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="university">University</Label>
-                  <Input type="text" id="university" className='w-full' placeholder="Enter your University" />
+                  <Input type="text" id="university" className='w-full' placeholder="Enter your University"value={} onChange={(e) => (e.target.value)} />
                 </div>
 
                 <div className='col-span-2'>
                   <Label htmlFor="specialization">Specialization</Label>
-                  <Input type="text" id="specialization" className='col-span-2 w-full' placeholder="Enter your Specialization" />
+                  <Input type="text" id="specialization" className='col-span-2 w-full' placeholder="Enter your Specialization"value={} onChange={(e) => (e.target.value)} />
                 </div>
               </>
             )}
 
             <div className='col-span-2'>
               <Label htmlFor="bio">Profile Description</Label>
-              <Textarea id="bio" className='w-full' placeholder="Tell us about yourself." />
+              <Textarea id="bio" className='w-full' placeholder="Tell us about yourself."value={} onChange={(e) => (e.target.value)} />
             </div>
 
             <div className='col-span-2'>
