@@ -69,7 +69,7 @@ export default function Editor() {
                 }
             ]
         },
-        initialData: '<h2>Congratulations on setting up CKEditor 5! 🎉</h2>',
+        initialData: '',
         link: {
             addTargetToExternalLinks: true,
             defaultProtocol: 'https://',

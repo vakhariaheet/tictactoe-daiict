@@ -15,7 +15,7 @@ export default function Post() {
         <div>
             {/* Button to open/close the editor and file uploader */}
             <Button variant="outline" onClick={toggleVisibility}>
-                {showComponents ? 'Close' : 'Upload'}
+                {showComponents ? 'Close' : 'Add Post'}
             </Button>
 
             {showComponents && (

@@ -16,7 +16,7 @@ export default function SignUpPage() {
   const [course, setCourse] = useState('');
   const [university, setUniversity] = useState('');
   const [specialization, setSpecialization] = useState('');
-  const [bio, setBio] = useState('');
+  const [description, setDescription] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -24,14 +24,22 @@ export default function SignUpPage() {
     const authToken = await getToken();
     console.log("Token: ", authToken);
 
-    const formData = { accountType: value, semester, year, course, university, specialization, bio };
+    const formData = {
+      "is_student": value === "student" ,
+      "bio": description,
+      "university": university,
+      "specialization": specialization,
+      "year": year,
+      "semester": semester,
+      "course": course,
+      };
 
     try {
-       // Send the files to your backend for uploading to Cloudinary
-      const response = await axios.post('/api/upload', formData, {
+      // Send the files to your backend for uploading to Cloudinary
+      const response = await axios.post('http://localhost:4000/profile/add-user-info', formData, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         }
       });
       console.log("Upload response:", response.data); // Handle the response from your backend
@@ -43,7 +51,7 @@ export default function SignUpPage() {
   return (
     <>
       <section className='flex justify-center items-center'>
-        <form className='h-screen w-1/2 bg-slate-100 p-8'>
+        <form className='h-screen w-1/2 bg-slate-100 p-8' onSubmit={handleSubmit}>
           <h2 className='text-center mb-6 text-xl font-semibold'>Complete Your Profile</h2>
 
           <div className='grid grid-cols-2 gap-4'>
@@ -76,27 +84,27 @@ export default function SignUpPage() {
                 {/* Row 3: Course and University */}
                 <div>
                   <Label htmlFor="course">Course</Label>
-                  <Input type="text" id="course" className='w-full' placeholder="Enter your Course"value={course} onChange={(e) => (e.target.value)} />
+                  <Input type="text" id="course" className='w-full' placeholder="Enter your Course"value={course} onChange={(e) => setCourse(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="university">University</Label>
-                  <Input type="text" id="university" className='w-full' placeholder="Enter your University"value={} onChange={(e) => (e.target.value)} />
+                  <Input type="text" id="university" className='w-full' placeholder="Enter your University"value={university} onChange={(e) => setUniversity(e.target.value)} />
                 </div>
 
                 <div className='col-span-2'>
                   <Label htmlFor="specialization">Specialization</Label>
-                  <Input type="text" id="specialization" className='col-span-2 w-full' placeholder="Enter your Specialization"value={} onChange={(e) => (e.target.value)} />
+                  <Input type="text" id="specialization" className='col-span-2 w-full' placeholder="Enter your Specialization"value={specialization} onChange={(e) => setSpecialization(e.target.value)} />
                 </div>
               </>
             )}
 
             <div className='col-span-2'>
               <Label htmlFor="bio">Profile Description</Label>
-              <Textarea id="bio" className='w-full' placeholder="Tell us about yourself."value={} onChange={(e) => (e.target.value)} />
+              <Textarea id="bio" className='w-full' placeholder="Tell us about yourself."value={description} onChange={(e) => setDescription(e.target.value)} />
             </div>
 
             <div className='col-span-2'>
-              <Button className='w-full' variant="outline" >Submit</Button>
+              <Button className='w-1/2 bg-black text-white justify-center' variant="outline" >Submit</Button>
             </div>
           </div>
         </form>

@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { FileUploader } from "react-drag-drop-files"; // Import FileUploader
 import { Button } from "@/components/ui/button"; // Import Button component
 import { useAuth } from '@clerk/clerk-react'; // Import useAuth from Clerk
-import axios from 'axios'; // Import Axios
 
 const fileTypes = ["JPG", "PNG", "GIF", "PDF"];
+const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/fanfic2book/image/upload'; // Use your Cloudinary URL
+const uploadPreset = 'daiict'; // Replace with your upload preset
 
 export default function FileUpload({ onUpload }) {
     const [files, setFiles] = useState<File[]>([]);
     const [showSuccess, setShowSuccess] = useState(false); // State for success message
-    const [fileUrls, setFileUrls] = useState<string[]>([]); // State for storing file URLs
     const { getToken } = useAuth(); // Get the getToken function from useAuth
 
     // Handler for file upload
@@ -26,21 +26,55 @@ export default function FileUpload({ onUpload }) {
 
         try {
             const formData = new FormData();
-            files.forEach(file => formData.append('file', file)); // Append each file to form data
-
-            // Send the files to your backend for uploading to Cloudinary
-            const response = await axios.post('/api/upload', formData, {
-                headers: {
-                    'Authorization': `Bearer ${authToken}`,
-                    'Content-Type': 'multipart/form-data',
-                }
+            files.forEach(file => {
+                formData.append('file', file); // Append each file to form data
+                formData.append('upload_preset', uploadPreset); // Append your upload preset
             });
 
-            console.log("Upload response:", response.data); // Handle the response from your backend
+            console.log("Sending data to Cloudinary:", formData);
+            // Send the files to Cloudinary using fetch
+            const response = await fetch(cloudinaryUrl, {
+                method: 'POST',
+                body: formData,
+            });
 
-            // Get URLs of uploaded files
-            const urls = response.data.results.map((file) => file.secure_url);
-            setFileUrls(urls); // Store the URLs
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+            console.log("Cloudinary response status:", response.status);
+            const data = await response.json(); // Parse JSON response
+            console.log("Upload response:", data); // Log the response
+
+            // Prepare the files array for the backend
+            const filesToSend = files.map(file => ({
+                mimetype: file.type, // Get mimetype from the original files array
+                url: data.secure_url // Correctly access the URL from the response
+            }));
+
+            // Forward the files and content to your backend
+         // Forward the files and content to your backend
+const backendResponse = await fetch('http://localhost:4000/post', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`, // Pass the token if needed
+    },
+    body: JSON.stringify({
+        files: filesToSend, // Send the files array
+        content: "Your content here" // Replace with actual content as needed
+    }),
+});
+
+// Log response details
+console.log("Backend response status:", backendResponse.status);
+const backendResponseData = await backendResponse.json(); // Parse response data
+console.log("Backend response body:", backendResponseData);
+
+if (!backendResponse.ok) {
+    throw new Error(`Failed to forward data to backend: ${backendResponseData.message || 'Unknown error'}`);
+}
+
+
             setShowSuccess(true); // Show success message
         } catch (error) {
             console.error("Upload failed:", error);
@@ -51,7 +85,7 @@ export default function FileUpload({ onUpload }) {
         onUpload(false); // Notify parent that no files are uploaded
     };
 
-    // Close the success message after a few seconds
+    // Close the success message
     const closeSuccessMessage = () => {
         setShowSuccess(false);
     };
@@ -79,9 +113,6 @@ export default function FileUpload({ onUpload }) {
             {showSuccess && (
                 <div className="success-popup">
                     <p>Files uploaded successfully!</p>
-                    {fileUrls.map((url, index) => (
-                        <p key={index}>File URL: <a href={url} target="_blank" rel="noopener noreferrer">{url}</a></p>
-                    ))}
                     <button onClick={closeSuccessMessage}>Close</button>
                 </div>
             )}

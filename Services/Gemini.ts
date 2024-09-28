@@ -5,8 +5,11 @@ import { fromPath } from 'pdf2pic';
 import log from 'encore.dev/log';
 import { paginate } from '../utils/utils';
 import { secret } from 'encore.dev/config';
+
+
+
 const genAI = new GoogleGenerativeAI(
-	secret('GeminiKey')(),
+	secret('GoogleGenerativeAIKey')(),
 );
 
 interface FileAttachment {
@@ -17,6 +20,8 @@ interface FileAttachment {
 }
 
 export const getBookContent = async (inputPath: string) => {
+	
+
 	const content = await fs.readFile(inputPath);
 	const pdfInfo = await pdf(content);
 	const outputDir = './tmp/output';
@@ -70,8 +75,6 @@ export const getBookContent = async (inputPath: string) => {
             return pages;
 		}),
 	);
-	fs.writeFile('output.json', JSON.stringify(pdfPages));
-
 	return resps;
 };
 

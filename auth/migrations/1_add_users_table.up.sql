@@ -1,6 +1,5 @@
 CREATE TABLE users(
     id VARCHAR(255) PRIMARY KEY,
-    username VARCHAR(255) UNIQUE,
     is_student BOOLEAN,
     bio TEXT,
     sem INT,
@@ -11,3 +10,5 @@ CREATE TABLE users(
     is_verified BOOLEAN DEFAULT FALSE,
     has_completed_profile BOOLEAN DEFAULT FALSE
 );
+
+

@@ -8,11 +8,11 @@ export interface UserCreatedHookParams {
 
 
 export interface AddUserInfoParams {
-    is_student: true;
+    is_student: boolean;
     bio: string;
     university?: string;
     specialization?: string;
-    year?: number;
-    semester?: number;
+    year?: string;
+    semester?: string;
     course?: string;
 }
