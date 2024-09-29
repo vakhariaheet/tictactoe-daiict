@@ -1,4 +1,5 @@
 import { api, APIError } from 'encore.dev/api';
+import {createClerkClient} from '@clerk/clerk-sdk-node'
 import { getBookContent, getImageContent } from '../Services/Gemini';
 import { saveBookFromURL } from '../utils/File';
 import { ElasticSearch } from '../Services/ElasticSearch';
@@ -11,16 +12,26 @@ import { SQLDatabase } from 'encore.dev/storage/sqldb';
 import { getAuthData } from '~encore/auth';
 import type { DBPost, DBPostAttachment, DBRating } from './types.d';
 import { auth  } from '~encore/clients'
+import { secret } from 'encore.dev/config';
 const db = new SQLDatabase('post', {
 	migrations: './migrations',
 });
-const userdb = SQLDatabase.named('auth')
+
+const clerkSecretKey = secret('ClerkSecretKey');
+
+const clerkClient = createClerkClient({
+	secretKey: clerkSecretKey(),
+	publishableKey:'pk_test_Y2hhbXBpb24tY3JpY2tldC0xMC5jbGVyay5hY2NvdW50cy5kZXYk',
+
+	
+});
+
 function calculateRelevanceScore(user: DBUser, post: CombinedPost): number {
 	let score = 0;
 
 	// Verified professional posts get highest priority
-	if (post.is_verified) {
-		score += 100;
+	if (user?.is_verified) {
+		score += 1000;
 	}
 
 	// Peer relevance
@@ -99,6 +110,8 @@ interface ScoredPost {
 	is_verified: boolean;
 	has_completed_profile: boolean;
 	relevance_score: number;
+	attachments: any[]
+	other_userinfo?:any
 }
 interface RecommendPostParams {
 	searchQuery?: string;
@@ -129,6 +142,7 @@ interface CombinedPost {
 	is_verified: boolean;
 	has_completed_profile: boolean;
 	relevance_score: number;
+
 }
 
 
@@ -265,7 +279,7 @@ export const recommendPosts = api(
 			const postAuthor = userMap.get(post.author_id);
 			return {
 				...post,
-				is_verified: (postAuthor as any).is_verified || false,
+				is_verified: (postAuthor as any)?.is_verified || false,
 				sem: postAuthor?.sem || 0,
 				yr: postAuthor?.yr || 0,
 				course: postAuthor?.course || '',
@@ -278,6 +292,7 @@ export const recommendPosts = api(
 		const scoredPosts: ScoredPost[] = combinedPosts.map((post) => ({
 			...post,
 			relevance_score: calculateRelevanceScore(user, post),
+			attachments: []
 		}));
 
 		// If there's a search query, boost the relevance score of matching posts
@@ -293,7 +308,21 @@ export const recommendPosts = api(
 
 		// Sort posts by relevance score
 		scoredPosts.sort((a, b) => b.relevance_score - a.relevance_score);
+		for (let post of scoredPosts) { 
 
+			const attachments = await db.query<DBPostAttachment>`SELECT * FROM post_attachments WHERE post_id = ${post.id}`;
+			post.attachments = [];
+			try {
+				
+				const user = await clerkClient.users.getUser(post.author_id);
+				post.other_userinfo = user;
+			}catch(e){
+				console.log('error',e)
+			}
+			for await (let attachment of attachments) {
+				post.attachments.push(attachment);
+			}
+		}
 		return {posts: scoredPosts.slice(0, limit)};
 	},
 );
@@ -476,14 +505,10 @@ export const getReviews = api(
 		const userIds = dbreviews.map((review) => review.user_id);
 		log.debug('userIds', userIds);
 		const users: DBUser[] = [];
-		try {
-
-			const dbUsers = await auth.getUsersFromIds({ ids: userIds });
+		const dbUsers = await auth.getUsersFromIds({ ids: userIds });
+		for (const user of dbUsers.users) {
+			users.push(user);
 		}
-		catch (err) {
-			log.error('Error fetching users', err);
-		}
-			
 		log.debug('users', users);
 		const reviews = dbreviews.map((review) => {
 			const user = users.find((user) => user.id === review.user_id);

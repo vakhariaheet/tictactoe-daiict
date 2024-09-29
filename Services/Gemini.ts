@@ -5,11 +5,12 @@ import { fromPath } from 'pdf2pic';
 import log from 'encore.dev/log';
 import { paginate } from '../utils/utils';
 import { secret } from 'encore.dev/config';
+import dotenv from 'dotenv';
 
-
+dotenv.config();
 
 const genAI = new GoogleGenerativeAI(
-	'AIzaSyBZrusEwaElU8217V4rl6hvvvp1JLH1VR0' as string,
+	process.env.GEMINI_KEY as ''
 );
 
 interface FileAttachment {

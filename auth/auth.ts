@@ -1,4 +1,4 @@
-import { createClerkClient, verifyToken } from '@clerk/backend';
+import { createClerkClient, verifyToken } from '@clerk/clerk-sdk-node';
 import { api, APIError, Gateway } from 'encore.dev/api';
 import type { Header } from 'encore.dev/api';
 import { secret } from 'encore.dev/config';
@@ -15,9 +15,10 @@ import { SQLDatabase } from 'encore.dev/storage/sqldb';
 import { getAuthData } from '~encore/auth';
 
 const clerkSecretKey = secret('ClerkSecretKey');
-
+const clerkJWTSecret = secret('ClerkJWT');
 const clerkClient = createClerkClient({
 	secretKey: clerkSecretKey(),
+	
 });
 const db = new SQLDatabase('auth', {
 	migrations: './migrations',
@@ -43,18 +44,9 @@ const myAuthHandler = authHandler(
 
 		try {
 			log.debug('result before');
-
+			
 			const result = await verifyToken(token, {
-				jwtKey: `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtjjJyXnKmyvhX7nlxTr1
-GFAk9uSI7X5FWqWfGUdG7dsU3BFtZKYUbfH6rhhn9jB2uamWnt4egfKv6icFuJVr
-KXvybxN/w7Goldmw/X27sYTgT5cBtgOqbgQN592dYBe4Rq4o3fKv8Kb8b5j/eHO0
-q7JM8RvRnn5zuSe7MzNpSqwGvXFY5ieyck+izffFPTV+6jFEXlx3D7xu7qOThkZO
-V5IdcR7ILtLkNC6o8lJKbCi0W70iwA7HC2msSHnD3nm6sNp42xSPDkZ6FxIu3ilH
-r0eGnXVgrmzCjKLYuI4zrHH+kuag/wWNPAz0hpKDoOtHhqAudfqkM4rxk7hCipGI
-IwIDAQAB
------END PUBLIC KEY-----
-`,
+				jwtKey: clerkJWTSecret(),
 				apiUrl: DOMAIN,
 				secretKey: clerkSecretKey(),
 
@@ -206,7 +198,7 @@ export const addPostToUserList = api({
 	path: '/profile/add-post-to-list',
 }, async (query: { post_id: string; list_id: string }) => {
 	const { userID } = getAuthData();
-	await db.exec`INSERT INTO user_saved_posts (id,post_id,list_id,user_id) VALUES ('${crypto.randomBytes(16).toString('hex')}',${query.post_id},${query.list_id},${userID})`;
+	await db.exec`INSERT INTO user_saved_posts (post_id,list_id,user_id) VALUES (${query.post_id},${query.list_id},${userID})`;
 	await db.exec`UPDATE user_lists SET total_posts = total_posts + 1 WHERE id = ${query.list_id}`;
 	return { status: 'ok' };
 }
@@ -253,22 +245,44 @@ export const getUsersFromIds = api({
 	path: '/profile/get-users-from-ids',
 }, async (query: GetUsersFromIdsParams): Promise<Record<"users", DBUser[]>> => {
 	log.debug("Query:", query);
+	const user2 = await clerkClient.users.getUserList();
+	log.debug("User2:", user2);
 	const users: DBUser[] = [];
 	try {
 		log.debug('query', query);
-		const dbUsers =db.query<DBUser>`SELECT * FROM users WHERE id IN ('${query.ids.join('\',\'')}')`;
-		for await (const user of dbUsers) {
-			log.debug('user', user);
-			users.push(user);
+		for (const id of query.ids) {
+			try {
+				const user = await clerkClient.users.getUser(id);
+				if (user) {
+					users.push({
+						id: user.id,
+						username: user.username || '',
+						is_student: false,
+						bio: '',
+						university: '',
+						specialization: '',
+						yr: 0,
+						sem: 0,
+						course: '',
+						is_verified: false,
+						has_completed_profile: false,
+					});
+				}
+			} catch (e) { 
+				log.debug("dsa", {
+					e
+				});
+			}
+			
 		}
 
 		return { users };
 	} catch (e) {
-		
+		console.log(e);
 		log.debug("dsa", {
 			e
 		});
-		throw APIError.internal('failed to get users');
+		throw APIError.internal('fa to get users',e as Error);
 	}
 })
 

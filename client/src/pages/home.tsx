@@ -1,22 +1,39 @@
 import { SidebarNav } from '@/components/SidebarNav';
 import { MainMenu } from '@/components/MainMenu';
-import FeedPost from '@/components/FeedPost';
+import FeedPost, { Post } from '@/components/FeedPost';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 
 const Home = () => {
-	const post = {
-		title: 'Post Title',
-		attachments: [
-			{
-				mimeType: 'application/pdf',
-				url: 'https://res.cloudinary.com/hzxyensd5/image/upload/w_150,c_scale/v1727505965/doc_codepen_upload/CG_UNIT_1_ASS._psa7nn.pdf',
-			},
-		],
-		avg_rating: 4,
-		id: 'POS_a941dfb48c539f7160028003c7317f6b',
-		created_at: '2022-01-01',
-		updated_at: '2022-01-02',
-		author: { name: 'John Doe' },
-	};
+	const { getToken } = useAuth();
+	const [ posts, setPosts ] = useState<Post[]>();
+	const [collections, setCollections] = useState<string[]>([]);
+	useEffect(() => {
+		const fetchPosts = async () => {
+			const token = await getToken();
+			const response = await fetch('http://localhost:4000/posts/recommend', {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+	
+			const data = await response.json();
+
+			setPosts(data.posts);
+			const collections = await fetch('http://localhost:4000/profile/lists', {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				}
+			});
+			const collectionData = await collections.json();
+			setCollections(collectionData.data);
+		};
+		fetchPosts();
+
+	},[])
+
 
 	return (
 		<div className='flex flex-col min-h-screen'>
@@ -30,8 +47,12 @@ const Home = () => {
 				</div>
 
 				<div className='flex flex-col justify-center w-5/6 space-y-5 '>
-					<FeedPost {...post} />
-					<FeedPost {...post} />
+					
+					{
+						posts && posts.map((post) => (
+							<FeedPost {...post} key={post.id} collections={collections} setCollections={setCollections} />
+						))
+					}
 				</div>
 			</div>
 		</div>

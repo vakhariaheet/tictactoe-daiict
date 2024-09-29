@@ -117,7 +117,7 @@ export function CommentsSection() {
               <div key={index} className="py-4 border-b last:border-b-0">
                 <div className="flex items-center justify-between mb-2">
                   <strong className="text-lg text-gray-800">{
-                    Names[index]
+                    review.username || Names[Math.floor(Math.random() * Names.length)]
                   }</strong>
                   <div className="flex items-center space-x-1">
                     {[...Array(5)].map((_, i) => (
