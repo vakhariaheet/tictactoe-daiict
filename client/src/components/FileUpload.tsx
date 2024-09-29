@@ -1,22 +1,36 @@
+// FileUpload.tsx
 import { useState } from 'react';
 import { FileUploader } from "react-drag-drop-files"; // Import FileUploader
 import { Button } from "@/components/ui/button"; // Import Button component
 import { useAuth } from '@clerk/clerk-react'; // Import useAuth from Clerk
+import { toast } from '@/hooks/use-toast';
 
+// Define the allowed file types for the uploader
 const fileTypes = ["JPG", "PNG", "GIF", "PDF"];
 const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/fanfic2book/image/upload'; // Use your Cloudinary URL
 const uploadPreset = 'daiict'; // Replace with your upload preset
 
-export default function FileUpload({ onUpload }) {
-    const [files, setFiles] = useState<File[]>([]);
+// Define prop types for the component
+interface FileUploadProps {
+  editorContent: string; // Assuming editorContent is a string of HTML or text
+}
+
+// Define File type
+interface UploadedFile {
+  name: string;
+  type: string;
+  size: number;
+}
+
+export default function FileUpload({ editorContent }: FileUploadProps) { // Properly type the props
+    const [files, setFiles] = useState<UploadedFile[]>([]); // State for storing uploaded files
     const [showSuccess, setShowSuccess] = useState(false); // State for success message
     const { getToken } = useAuth(); // Get the getToken function from useAuth
 
     // Handler for file upload
-    const handleChange = (uploadedFiles: File[]) => {
+    const handleChange = (uploadedFiles: UploadedFile[]) => {
         setFiles([...uploadedFiles]);  // Store all uploaded files in the state
         console.log(uploadedFiles);
-        onUpload(uploadedFiles.length > 0);  // Notify parent component that files are uploaded
     };
 
     // Handler for submitting files
@@ -27,9 +41,12 @@ export default function FileUpload({ onUpload }) {
         try {
             const formData = new FormData();
             files.forEach(file => {
-                formData.append('file', file); // Append each file to form data
-                formData.append('upload_preset', uploadPreset); // Append your upload preset
+                formData.append('file', file as any); // Append each file to form data
+                formData.append('upload_preset', uploadPreset);
+                formData.append('public_id', file.name);
             });
+
+            
 
             console.log("Sending data to Cloudinary:", formData);
             // Send the files to Cloudinary using fetch
@@ -51,38 +68,41 @@ export default function FileUpload({ onUpload }) {
                 url: data.secure_url // Correctly access the URL from the response
             }));
 
-            // Forward the files and content to your backend
-         // Forward the files and content to your backend
-const backendResponse = await fetch('http://localhost:4000/post', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`, // Pass the token if needed
-    },
-    body: JSON.stringify({
-        files: filesToSend, // Send the files array
-        content: "Your content here" // Replace with actual content as needed
-    }),
-});
+            // Forward the files and content (from editor) to your backend
+            const backendResponse = await fetch('http://localhost:4000/post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`, // Pass the token if needed
+                },
+                body: JSON.stringify({
+                    files: filesToSend, // Send the files array
+                    content: editorContent // Send the editor content here
+                }),
+            });
+            toast({
+                title: 'Post Created',
+                description: 'Your post has been created successfully! 🎉. Please note it ',
+                
+                duration: 5000,
+                
+            });
+            // Log response details
+            console.log("Backend response status:", backendResponse.status);
+            const backendResponseData = await backendResponse.json(); // Parse response data
+            console.log("Backend response body:", backendResponseData);
 
-// Log response details
-console.log("Backend response status:", backendResponse.status);
-const backendResponseData = await backendResponse.json(); // Parse response data
-console.log("Backend response body:", backendResponseData);
-
-if (!backendResponse.ok) {
-    throw new Error(`Failed to forward data to backend: ${backendResponseData.message || 'Unknown error'}`);
-}
-
+            if (!backendResponse.ok) {
+                throw new Error(`Failed to forward data to backend: ${backendResponseData.message || 'Unknown error'}`);
+            }
 
             setShowSuccess(true); // Show success message
         } catch (error) {
             console.error("Upload failed:", error);
         }
-        
+
         // Reset the files after submission (optional)
         setFiles([]);
-        onUpload(false); // Notify parent that no files are uploaded
     };
 
     // Close the success message

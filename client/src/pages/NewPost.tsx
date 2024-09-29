@@ -3,9 +3,9 @@ import Post from "@/components/Post";
 const NewPost = () => {
   return ( 
     <>
-     <Post  />
+     <Post />
     </>
    );
 }
- 
+
 export default NewPost;

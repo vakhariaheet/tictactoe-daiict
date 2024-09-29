@@ -34,9 +34,9 @@ export class ElasticSearch {
         if (!this.client) {
             this.init();
         }
-        this.client.index({
+        return this.client.index({
             index: 'documents',
-            body: {
+            document: {
                 postid: postid,
                 content: content,
                 page: page,
@@ -48,9 +48,10 @@ export class ElasticSearch {
         if (!this.client) { 
             this.init();
         }
-        this.client.bulk({
+        return this.client.bulk({
             index: 'documents',
-            body: data
+            body: data || [],
+         
         });
     }
     static search(query: string) {
@@ -61,7 +62,10 @@ export class ElasticSearch {
             index: 'documents',
             body: {
                 query: {
-                    match: { content: query }
+                    multi_match: {
+                        query: query,
+                        fields: ['content']
+                    }
                 }
             }
         });

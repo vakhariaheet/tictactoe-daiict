@@ -6,10 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@clerk/clerk-react'; // Import useAuth from Clerk
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 export default function SignUpPage() {
   const [value, setValue] = useState("student");
   const { getToken } = useAuth(); // Get the getToken function from useAuth
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const [semester, setSemester] = useState('');
   const [year, setYear] = useState('');
@@ -43,6 +45,7 @@ export default function SignUpPage() {
         }
       });
       console.log("Upload response:", response.data); // Handle the response from your backend
+      navigate('/'); // Replace '/profile' with your desired route
     } catch (error) {
       console.error("Upload failed:", error);
     }

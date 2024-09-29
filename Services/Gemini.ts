@@ -9,7 +9,7 @@ import { secret } from 'encore.dev/config';
 
 
 const genAI = new GoogleGenerativeAI(
-	secret('GoogleGenerativeAIKey')(),
+	'AIzaSyBZrusEwaElU8217V4rl6hvvvp1JLH1VR0' as string,
 );
 
 interface FileAttachment {
@@ -68,20 +68,26 @@ export const getBookContent = async (inputPath: string) => {
 	}
 
 	const pdfPages: string[] = [];
-	const resps = await Promise.all(
-		paginate(attactments, 10).map(async (batch, i) => {
+	const resps = await Promise.all(await paginate(attactments, 10).map(async (batch, i) => {
 			const pages = await getImageContent(batch);
-            pdfPages.push(...(pages || []));
-            return pages;
-		}),
-	);
-	return resps;
+			pdfPages.push(...(pages || []));
+		return pages;
+		}));
+	
+	return pdfPages;
 };
 
 export const getImageContent = async (attactments: FileAttachment[]) => {
-	const prompt = `Extract the plain text content from a batch of images representing pages from a book. Maintain a clear and consistent distinction between pages by inserting a custom separator (e.g., ===PAGE BREAK===) between each page's content. Ensure that the text is extracted accurately with no additional formatting like Markdown or HTML. Keep only the raw text, without any styling or special characters beyond basic punctuation.`;
-	const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+	
+		const prompt = `Extract the plain text content from a batch of images representing pages from a book. Maintain a clear and consistent distinction between pages by inserting a custom separator (e.g., ===PAGE BREAK===) between each page's content. Ensure that the text is extracted accurately with no additional formatting like Markdown or HTML. Keep only the raw text, without any styling or special characters beyond basic punctuation.`;
+		const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+		log.info('Generating content from images', {
+			attachments: attactments.length,
+		});
     const { response } = await model.generateContent([ prompt, ...attactments ]);
-    const pages = response.candidates?.[0].content.parts[0].text?.split('===PAGE BREAK===').map((page: string) => page.trim());
+    const pages = response.candidates?.[0].content.parts[0].text?.split('===PAGE BREAK===').map((page) => page.trim());
     return pages;
+	
+	
 };
+

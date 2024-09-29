@@ -23,9 +23,9 @@ import {
 } from 'ckeditor5';
 
 import 'ckeditor5/ckeditor5.css';
-import './App.css';
+import '../App.css';
 
-export default function Editor() {
+export default function Editor({setEditorContent}) {
     const editorContainerRef = useRef(null);
     const editorRef = useRef(null);
     const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -90,7 +90,10 @@ export default function Editor() {
         <div className="editor-container editor-container_classic-editor" ref={editorContainerRef}>
             <div className="editor-container__editor">
                 <div ref={editorRef}>
-                    {isLayoutReady && <CKEditor editor={ClassicEditor} config={editorConfig} />}
+                    {isLayoutReady && <CKEditor onChange={(e,editor) => {
+                        const data = editor.getData();
+                        setEditorContent(data);
+                    }} editor={ClassicEditor} config={editorConfig} />}
                 </div>
             </div>
         </div>

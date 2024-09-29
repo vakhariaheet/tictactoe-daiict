@@ -1,32 +1,35 @@
 import { useState } from 'react';
-import Editor from './Editor';        // Import Editor component
+import Editor from './Editor'; // Import Editor component
 import FileUpload from './FileUpload'; // Import FileUpload component
-import { Button } from "@/components/ui/button"; // Import Button component
+import { Button } from '@/components/ui/button'; // Import Button component
+import { CirclePlus } from 'lucide-react';
+
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export default function Post() {
-    const [showComponents, setShowComponents] = useState(false);
+	const [editorContent, setEditorContent] = useState('');
+	// Function to toggle the editor and uploader visibility
 
-    // Function to toggle the editor and uploader visibility
-    const toggleVisibility = () => {
-        setShowComponents((prev) => !prev);
-    };
+	return (
+		<Dialog>
+			<DialogTrigger asChild>
+				<Button variant='outline' className='w-80 h-10 text-[18px] stroke-white text-white bg-black'>
+					<CirclePlus/>
+					&nbsp;&nbsp;Add Post
+				</Button>
+			</DialogTrigger>
 
-    return (
-        <div>
-            {/* Button to open/close the editor and file uploader */}
-            <Button variant="outline" onClick={toggleVisibility}>
-                {showComponents ? 'Close' : 'Add Post'}
-            </Button>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle className='h-[2rem]'>Add Post</DialogTitle>
+					<DialogDescription>Add a new post to the feed</DialogDescription>
+				</DialogHeader>
 
-            {showComponents && (
-                <div>
-                    {/* Editor Component */}
-                    <Editor />
-
-                    {/* FileUpload Component */}
-                    <FileUpload onUpload={() => {}} />
-                </div>
-            )}
-        </div>
-    );
+				<div className="">
+					<Editor setEditorContent={setEditorContent} />
+					<FileUpload editorContent={editorContent} />
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
 }

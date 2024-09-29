@@ -1,34 +1,44 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ClerkProvider } from '@clerk/clerk-react';
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import SignInPage from './pages/SignIn';
 import SignUpPage from './pages/SignUp';
-import RootLayout from './pages/Index';
+import Home from './pages/home';
 import NewPost from './pages/NewPost';
 import UserInfoForm from './pages/UserInfoForm';
+import SavedPost from './components/SavedPost';
+import { CommentsSection } from './pages/CommentView';
+import { Toaster } from './components/ui/toaster';
+import Demo from './components/Demo';
+import FeedPost from './components/FeedPost'; // Import the FeedPost component
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing Publishable Key')
+  throw new Error('Missing Publishable Key');
 }
 
 export default function App() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <ClerkProvider
-      routerPush={(to:any) => navigate(to)}
-      routerReplace={(to:any) => navigate(to, { replace: true })}
+      routerPush={(to: any) => navigate(to)}
+      routerReplace={(to: any) => navigate(to, { replace: true })}
       publishableKey={PUBLISHABLE_KEY}
     >
       <Routes>
+        <Route path="/pdf-check" element={<Demo />} />
         <Route path='/new-post' element={<NewPost />} />
+        <Route path='/save-post' element={<SavedPost />} />
         <Route path='/sign-in/*' element={<SignInPage />} />
         <Route path='/sign-up/*' element={<SignUpPage />} />
         <Route path='/user-info' element={<UserInfoForm />} />
-        <Route path='/' element={<RootLayout />} />
+        <Route path='/:postId/comments' element={<CommentsSection />} />
+        <Route path='/feed-post' element={<FeedPost />} /> {/* Add FeedPost route */}
+        <Route path='/' element={<Home />} />
       </Routes>
+      <Toaster />
     </ClerkProvider>
-  )
+  );
 }

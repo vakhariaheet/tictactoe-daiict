@@ -1,0 +1,134 @@
+%PDF-1.3
+%«Ïè¢
+1 0 obj
+<</Type/Font/Subtype/Type1/Name/F1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>
+endobj
+2 0 obj
+<</Type/Font/Subtype/Type1/Name/F2/BaseFont/Helvetica-Bold/Encoding/WinAnsiEncoding>>
+endobj
+3 0 obj
+<</Type/Font/Subtype/Type1/Name/F3/BaseFont/Helvetica-Oblique/Encoding/WinAnsiEncoding>>
+endobj
+4 0 obj
+<</Type/Font/Subtype/Type1/Name/F4/BaseFont/Helvetica-BoldOblique/Encoding/WinAnsiEncoding>>
+endobj
+5 0 obj
+<</Length 1215>>
+stream
+BT 1 0 0 1 72 763 Tm
+/F1 9 Tf 0 0 0 rg (Q1==================================)Tj
+0 -10.8 TD
+(===============| RESULT |===============)Tj
+T*
+T*
+(def calculate\(\):)Tj
+T*
+(    Enroll= int\(input\("Enter Enrollnment : "\)\))Tj
+T*
+(    Enroll= input\("Enter Name : "\))Tj
+T*
+(    no_of_sub= int\(input\("Enter subject : "\)\))Tj
+T*
+(    marks= int\(input\("Enter marks : "\)\))Tj
+T*
+T*
+(    cal = \(marks*100\)/\(100*no_of_sub\))Tj
+T*
+T*
+(    return cal)Tj
+T*
+(===============| ADMIN |===============)Tj
+T*
+T*
+(def result\(var\):)Tj
+T*
+T*
+(    if var > 65 :)Tj
+T*
+(        print\("You are Eligible"\))Tj
+T*
+(    else :)Tj
+T*
+(        print\("Try Next Year"\))Tj
+T*
+(===============| CALLING |===============)Tj
+T*
+(    )Tj
+T*
+(from College import Admin,Result)Tj
+T*
+T*
+(var = Result.calculate\(\))Tj
+T*
+(print\("Percentage : ",var\))Tj
+T*
+(Admin.result\(var\))Tj
+T*
+T*
+(    )Tj
+T*
+(Q2==================================)Tj
+T*
+T*
+(def calculate\(num\):)Tj
+T*
+(    a,b=0,1)Tj
+T*
+(    list=[])Tj
+T*
+(    while a<=num : )Tj
+T*
+(        list.append\(a\))Tj
+T*
+(        a,b=b,a+b)Tj
+T*
+(    return list)Tj
+T*
+(num = int\(input\("Enter Number : "\)\))Tj
+T*
+T*
+(var = calculate\(num\))Tj
+T*
+(print\(f"Fibonaci : {var}"\))Tj
+T*
+ET
+endstream
+endobj
+6 0 obj
+<</ProcSet[/PDF/Text]
+/Font<</F1 1 0 R/F2 2 0 R/F3 3 0 R/F4 4 0 R>> >>
+endobj
+7 0 obj
+<</Type/Page/Parent 8 0 R
+/MediaBox[ 0 0 595 842]
+/Contents 5 0 R
+/Resources 6 0 R
+>>
+endobj
+8 0 obj
+<</Type/Pages/Kids[
+7 0 R
+]/Count 1
+>>
+endobj
+9 0 obj
+<</Type/Catalog/Pages 8 0 R >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000015 00000 n 
+0000000111 00000 n 
+0000000212 00000 n 
+0000000316 00000 n 
+0000000424 00000 n 
+0000001689 00000 n 
+0000001775 00000 n 
+0000001876 00000 n 
+0000001930 00000 n 
+trailer
+<< /Size 10 /Root 9 0 R
+>>
+startxref
+1976
+%%EOF
