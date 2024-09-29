@@ -1,7 +1,6 @@
 import { SidebarNav } from '@/components/SidebarNav';
 import { MainMenu } from '@/components/MainMenu';
 import FeedPost from '@/components/FeedPost';
-import { Bookmarks } from './Bookmarks';
 
 const Home = () => {
 	const post = {
