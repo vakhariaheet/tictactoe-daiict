@@ -11,6 +11,7 @@ import { CommentsSection } from './pages/CommentView';
 import { Toaster } from './components/ui/toaster';
 import Demo from './components/Demo';
 import FeedPost from './components/FeedPost'; // Import the FeedPost component
+import AiCourse from './pages/Aicourse';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -35,7 +36,8 @@ export default function App() {
         <Route path='/sign-up/*' element={<SignUpPage />} />
         <Route path='/user-info' element={<UserInfoForm />} />
         <Route path='/:postId/comments' element={<CommentsSection />} />
-        <Route path='/feed-post' element={<FeedPost />} /> {/* Add FeedPost route */}
+        <Route path='/feed-post' element={<FeedPost />} />
+        <Route path='/aicourse' element={<AiCourse />} />
         <Route path='/' element={<Home />} />
       </Routes>
       <Toaster />

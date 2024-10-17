@@ -7,7 +7,8 @@ import { useAuth } from '@clerk/clerk-react';
 const Home = () => {
 	const { getToken } = useAuth();
 	const [ posts, setPosts ] = useState<Post[]>();
-	const [collections, setCollections] = useState<string[]>([]);
+	const [ collections, setCollections ] = useState<string[]>([]);
+	const [search,setSearch] = useState("")
 	useEffect(() => {
 		const fetchPosts = async () => {
 			const token = await getToken();

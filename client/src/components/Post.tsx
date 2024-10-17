@@ -7,11 +7,12 @@ import { CirclePlus } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export default function Post() {
-	const [editorContent, setEditorContent] = useState('');
+	const [ editorContent, setEditorContent ] = useState('');
+	const [show, setShow] = useState(false);
 	// Function to toggle the editor and uploader visibility
 
 	return (
-		<Dialog>
+		<Dialog open={show} onOpenChange={setShow}>
 			<DialogTrigger asChild>
 				<Button variant='outline' className='w-80 h-10 text-[18px] stroke-white text-white bg-black'>
 					<CirclePlus/>
@@ -27,7 +28,7 @@ export default function Post() {
 
 				<div className="">
 					<Editor setEditorContent={setEditorContent} />
-					<FileUpload editorContent={editorContent} />
+					<FileUpload editorContent={editorContent} setShow={setShow} />
 				</div>
 			</DialogContent>
 		</Dialog>

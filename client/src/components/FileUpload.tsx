@@ -12,7 +12,8 @@ const uploadPreset = 'daiict'; // Replace with your upload preset
 
 // Define prop types for the component
 interface FileUploadProps {
-  editorContent: string; // Assuming editorContent is a string of HTML or text
+    editorContent: string;
+    setShow: any;  // Assuming editorContent is a string of HTML or text
 }
 
 // Define File type
