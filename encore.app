@@ -4,7 +4,8 @@
 
 	"build": {
 		"docker": {
-			"bundle_source": true
+			"bundle_source": true,
+			"working_dir": "/workspace/"
 		}
 	},
 	"global_cors":{
