@@ -18,12 +18,11 @@ const db = new SQLDatabase('post', {
 });
 
 const clerkSecretKey = secret('ClerkSecretKey');
-
+const clerkPublishableKey = secret('ClertPublishableKey');
 const clerkClient = createClerkClient({
 	secretKey: clerkSecretKey(),
-	publishableKey:'pk_test_Y2hhbXBpb24tY3JpY2tldC0xMC5jbGVyay5hY2NvdW50cy5kZXYk',
+	publishableKey: clerkPublishableKey(),
 
-	
 });
 
 function calculateRelevanceScore(user: DBUser, post: CombinedPost): number {
@@ -84,7 +83,9 @@ interface AddPostParams {
 	}[];
 	content: string;
 }
-const postTopic = new Topic('post', {
+const postTopic = new Topic<{
+	postid: string;
+}>('post', {
 	deliveryGuarantee: 'exactly-once',
 });
 interface APISuccess {
