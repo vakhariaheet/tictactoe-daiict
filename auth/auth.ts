@@ -122,16 +122,21 @@ export const addUserInfo = api(
 		log.debug("user", data);
 		log.debug('addUserInfo', p);
 		try {
-			if (p.is_student)
-				await db.exec`UPDATE users SET is_student = ${p.is_student}, bio = ${p.bio},
-				course = ${p.course || null}, year = ${p.year || null}, semester = ${p.semester || null},
+			log.debug('query', {q: `UPDATE users SET is_student = ${p.is_student}, bio = ${p.bio},
+				course = ${p.course || null}, yr = ${p.year || null}, sem = ${p.semester || null},
 				specialization = ${p.specialization || null}, university = ${p.university || null}
-				WHERE id = ${data.userID}`;
+				WHERE id = ${data.userID}`});
+			if (p.is_student)
+				await db.exec`UPDATE users SET is_student = ${p.is_student},bio='${p.bio}',
+				course = '${p.course || null}', yr = ${p.year || null}, sem = ${p.semester || null},
+				specialization =' ${p.specialization || null}', university = '${p.university || null}'
+				WHERE id ='${data.userID}'`;
 			else {
 				await db.exec`UPDATE users SET is_student = ${p.is_student}, bio = ${p.bio}
 				WHERE id = ${data.userID}`;
 			}
 		} catch (e) {
+			console.log(e);
 			log.error(e);
 			throw APIError.internal('failed to insert user info');
 		}
